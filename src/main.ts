@@ -19,6 +19,10 @@ async function bootstrap() {
 
   const appService = app.get(AppService);
 
-  appService.sendStartPing();
+  try {
+    await appService.sendStartPing();
+  } catch (e) {
+    console.error('Error sending start ping: ', e);
+  }
 }
 bootstrap();
