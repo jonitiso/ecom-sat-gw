@@ -3,6 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import * as address from 'address';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { exec } from 'child_process';
+import { mac } from './constants';
 
 @Injectable()
 export class AppService {
@@ -30,10 +31,10 @@ export class AppService {
     }
   }
 
-  async interact(data: { filename: string; interactionId: string }) {
+  async interact(data: { command: string; interactionId: string }) {
     console.log('Interacting with: ', data);
     try {
-      const response = await this.runCmnd('whoami');
+      const response = await this.runCmnd(data.command);
       console.log('Response: ', response);
       await this.emitInteractResponse({
         success: true,
@@ -62,7 +63,7 @@ export class AppService {
     };
     interactionId: string;
   }) {
-    this.client.emit('ecom/0a-00-27-00-00-0a/interact-response', data);
+    this.client.emit(`ecom/${mac}/interact-response`, data);
   }
 
   async getMacAddress() {
@@ -91,7 +92,7 @@ export class AppService {
   async sendPing() {
     try {
       const mac = await this.getMacAddress();
-      this.client.emit('ecom/ping', {
+      this.client.emit(`ecom/${mac}/ping`, {
         mac,
       });
     } catch (e) {
