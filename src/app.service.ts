@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import * as address from 'address';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { exec } from 'child_process';
-import { mac } from './constants';
+import { macAddr, macChannel } from './constants';
 
 @Injectable()
 export class AppService {
@@ -63,7 +63,7 @@ export class AppService {
     };
     interactionId: string;
   }) {
-    this.client.emit(`ecom/${mac}/interact-response`, data);
+    this.client.emit(`ecom/${macChannel}/interact-response`, data);
   }
 
   async getMacAddress() {
@@ -79,9 +79,8 @@ export class AppService {
 
   async sendStartPing() {
     try {
-      const mac = await this.getMacAddress();
       this.client.emit('ecom/connected-device', {
-        mac,
+        mac: macAddr,
       });
     } catch (e) {
       console.error('Error sending start ping: ', e);
@@ -91,9 +90,8 @@ export class AppService {
   @Cron(CronExpression.EVERY_5_SECONDS)
   async sendPing() {
     try {
-      const mac = await this.getMacAddress();
-      this.client.emit(`ecom/${mac}/ping`, {
-        mac,
+      this.client.emit(`ecom/${macChannel}/ping`, {
+        mac: macAddr,
       });
     } catch (e) {
       console.error('Error sending ping: ', e);
